@@ -5,6 +5,12 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public int speed;
+    public int power;
+    public float maxShotDelay;
+    public float curShotDelay;
+
+    public GameObject bulletObjA;
+    public GameObject bulletObjB;
 
     private bool isTouchTop;
     private bool isTouchBottom;
@@ -20,7 +26,18 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        // Player Movement
+        // Player movement
+        Move();
+
+        // Player shoot
+        Fire();
+
+        // Bullet reload;
+        Reload();
+    }
+
+    void Move()
+    {
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
 
@@ -37,6 +54,44 @@ public class Player : MonoBehaviour
 
         // Player Movement Animation
         anim.SetInteger("Input", (int)h);
+    }
+
+    void Fire()
+    {
+        if (!Input.GetButton("Fire1") || curShotDelay < maxShotDelay)
+            return;
+
+        // Create bullet object
+        switch(power)
+        {
+            case 1:
+                GameObject bullet = Instantiate(bulletObjA, transform.position, transform.rotation);
+                Rigidbody2D rigidbody2D = bullet.GetComponent<Rigidbody2D>();
+                rigidbody2D.AddForce(Vector2.up * 10, ForceMode2D.Impulse);
+                break;
+            case 2:
+                GameObject bulletLeft = Instantiate(bulletObjA, transform.position + Vector3.left * 0.2f, transform.rotation);
+                Rigidbody2D rigidbody2D_left = bulletLeft.GetComponent<Rigidbody2D>();
+                rigidbody2D_left.AddForce(Vector2.up * 10, ForceMode2D.Impulse);
+
+                GameObject bulletRight = Instantiate(bulletObjA, transform.position + Vector3.right * 0.2f, transform.rotation);
+                Rigidbody2D rigidbody2D_right = bulletRight.GetComponent<Rigidbody2D>();
+                rigidbody2D_right.AddForce(Vector2.up * 10, ForceMode2D.Impulse);
+                break;
+            case 3:
+                GameObject bulletCenter = Instantiate(bulletObjB, transform.position, transform.rotation);
+                Rigidbody2D rigidbody2D_center = bulletCenter.GetComponent<Rigidbody2D>();
+                rigidbody2D_center.AddForce(Vector2.up * 10, ForceMode2D.Impulse);
+                break;
+        }
+
+        // Reload
+        curShotDelay = 0;
+    }
+
+    void Reload()
+    {
+        curShotDelay += Time.deltaTime;
     }
 
     void OnTriggerEnter2D(Collider2D collision)
