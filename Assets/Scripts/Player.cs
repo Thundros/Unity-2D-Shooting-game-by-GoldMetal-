@@ -4,8 +4,13 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    public int life;
+    public int score;
     public int speed;
     public int power;
+
+    public bool isHit;
+
     public float maxShotDelay;
     public float curShotDelay;
 
@@ -119,8 +124,18 @@ public class Player : MonoBehaviour
         }
         else if(collision.gameObject.tag == "Enemy" || collision.gameObject.tag == "EnemyBullet")
         {
-            gameManager.Invoke("RespawnPlayer", 2.0f);
+            if (isHit) return;
+
+            isHit = true;
+            gameManager.UpdateLifeIcon(--life);
+
+            if (life == 0)
+                gameManager.GameOver();
+            else
+                gameManager.Invoke("RespawnPlayer", 2.0f);
+
             gameObject.SetActive(false);
+            Destroy(collision.gameObject);
         }
     }
 
