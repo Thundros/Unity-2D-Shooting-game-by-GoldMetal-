@@ -12,6 +12,8 @@ public class Player : MonoBehaviour
     public GameObject bulletObjA;
     public GameObject bulletObjB;
 
+    public GameManager gameManager;
+
     private bool isTouchTop;
     private bool isTouchBottom;
     private bool isTouchLeft;
@@ -71,11 +73,12 @@ public class Player : MonoBehaviour
                 break;
             case 2:
                 GameObject bulletLeft = Instantiate(bulletObjA, transform.position + Vector3.left * 0.2f, transform.rotation);
-                Rigidbody2D rigidbody2D_left = bulletLeft.GetComponent<Rigidbody2D>();
-                rigidbody2D_left.AddForce(Vector2.up * 10, ForceMode2D.Impulse);
-
                 GameObject bulletRight = Instantiate(bulletObjA, transform.position + Vector3.right * 0.2f, transform.rotation);
+
+                Rigidbody2D rigidbody2D_left = bulletLeft.GetComponent<Rigidbody2D>();
                 Rigidbody2D rigidbody2D_right = bulletRight.GetComponent<Rigidbody2D>();
+
+                rigidbody2D_left.AddForce(Vector2.up * 10, ForceMode2D.Impulse);
                 rigidbody2D_right.AddForce(Vector2.up * 10, ForceMode2D.Impulse);
                 break;
             case 3:
@@ -113,6 +116,11 @@ public class Player : MonoBehaviour
                     isTouchRight = true;
                     break;
             }
+        }
+        else if(collision.gameObject.tag == "Enemy" || collision.gameObject.tag == "EnemyBullet")
+        {
+            gameManager.Invoke("RespawnPlayer", 2.0f);
+            gameObject.SetActive(false);
         }
     }
 

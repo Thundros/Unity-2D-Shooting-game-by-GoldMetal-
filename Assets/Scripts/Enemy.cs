@@ -4,18 +4,85 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+    public string enemyName;
     public float speed;
     public int health;
-    public Sprite[] sprites;
 
-    Rigidbody2D rigid;
+    public float maxShotDelay;
+    public float curShotDelay;
+
+    public GameObject bulletObjA;
+    public GameObject bulletObjB;
+    public GameObject player;
+
+    public Sprite[] sprites;
     SpriteRenderer spriteRenderer;
 
     void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
-        rigid = GetComponent<Rigidbody2D>();
-        rigid.velocity = Vector2.down * speed;
+    }
+
+    void Update()
+    {
+        // Enemy shoot
+        Fire();
+
+        // Bullet reload;
+        Reload();
+    }
+
+    void Fire()
+    {
+        if (curShotDelay < maxShotDelay)
+            return;
+
+        if(enemyName == "A")
+        {
+            GameObject bullet = Instantiate(bulletObjA, transform.position, transform.rotation);
+            Rigidbody2D rigid = bullet.GetComponent<Rigidbody2D>();
+
+            // Direction of target(Player) = target position - enemy position
+            Vector3 dirVec = player.transform.position - transform.position;
+            rigid.AddForce(dirVec.normalized * 4, ForceMode2D.Impulse);
+        }
+        else if(enemyName == "B")
+        {
+            GameObject bulletLeft = Instantiate(bulletObjA, transform.position + Vector3.left * 0.3f, transform.rotation);
+            GameObject bulletRight = Instantiate(bulletObjA, transform.position + Vector3.right * 0.3f, transform.rotation);
+
+            Rigidbody2D rigidLeft = bulletLeft.GetComponent<Rigidbody2D>();
+            Rigidbody2D rigidRight = bulletRight.GetComponent<Rigidbody2D>();
+
+            Vector3 dirVecLeft = player.transform.position - (transform.position + Vector3.left * 0.3f);
+            Vector3 dirVecRight = player.transform.position - (transform.position + Vector3.right * 0.3f);
+
+            // Change unit vector : .normalized
+            rigidLeft.AddForce(dirVecLeft.normalized * 3, ForceMode2D.Impulse);
+            rigidRight.AddForce(dirVecRight.normalized * 3, ForceMode2D.Impulse);
+        }
+        else if(enemyName == "C")
+        {
+            GameObject bulletLeft = Instantiate(bulletObjB, transform.position + Vector3.left * 0.3f, transform.rotation);
+            GameObject bulletRight = Instantiate(bulletObjB, transform.position + Vector3.right * 0.3f, transform.rotation);
+
+            Rigidbody2D rigidLeft = bulletLeft.GetComponent<Rigidbody2D>();
+            Rigidbody2D rigidRight = bulletRight.GetComponent<Rigidbody2D>();
+
+            Vector3 dirVecLeft = player.transform.position - (transform.position + Vector3.left * 0.3f);
+            Vector3 dirVecRight = player.transform.position - (transform.position + Vector3.right * 0.3f);
+
+            rigidLeft.AddForce(dirVecLeft.normalized * 2, ForceMode2D.Impulse);
+            rigidRight.AddForce(dirVecRight.normalized * 2, ForceMode2D.Impulse);
+        }
+
+        // Reload
+        curShotDelay = 0;
+    }
+
+    void Reload()
+    {
+        curShotDelay += Time.deltaTime;
     }
 
     void OnHit(int dmg)
